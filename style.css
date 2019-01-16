@@ -1,0 +1,25 @@
+body{
+    height: 50%;
+}
+#leftDiv{
+    margin: 0;
+    width:1120px;
+    height: 700px;
+    background-image: url("https://i.ibb.co/0XLMLd5/freshorigins.jpg");
+    background-size: cover;
+    float: left;
+    border: 1px solid black;   
+}
+
+#rightDiv{
+    float: right;
+    width: 300px;
+    margin: 0;
+    height: 720px;
+    margin-top:300px;
+}
+#head{
+    text-align: right; 
+    margin-right: 50px; 
+    color: orange;
+}
