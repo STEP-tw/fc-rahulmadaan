@@ -1,17 +1,17 @@
 const { readFile } = require('fs');
-
+const ENCODING = "utf8";
 
 const app = (req, res) => {
   try {
-
     if (req.url === "/") {
-      readFile('./index.html', 'utf8', (err, data) => {
+      readFile('./index.html', ENCODING, (err, data) => {
         res.write(data);
       });
       return;
     }
-    readFile(`.${req.url}`, "utf8", (err, data) => {
+    readFile(`.${req.url}`, ENCODING, (err, data) => {
       res.write(data);
+      res.statusCode = 200;
       res.end();
     });
   }

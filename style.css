@@ -1,6 +1,3 @@
-body{
-    height: 50%;
-}
 #leftDiv{
     margin: 0;
     width:1120px;
@@ -22,4 +19,12 @@ body{
     text-align: right; 
     margin-right: 50px; 
     color: orange;
+}
+#flowerImage{
+     background-image: url("https://i.ibb.co/J5XKyPt/animated-flower-image-0021.gif");
+     background-size: cover;
+     background-position: center;
+     width: 110px;
+     height: 100px;
+     margin-left: 50px;
 }
