@@ -1,4 +1,4 @@
-const { readFile } = require('fs');
+const { readFile, appendFile } = require('fs');
 const createApp = require("../public/framework.js");
 const app = createApp();
 const ENCODING = "utf8";
@@ -54,8 +54,26 @@ const serveFile = (req, res, next) => {
   }
 };
 
+const guestBook = function (req, res) {
+  readFile(`.${req.url}`, "utf8", (err, contents) => {
+    let userComments = readArgs(req.body);
+    userComments.dateTime = new Date();
+    appendFile('./comments.json', JSON.stringify(userComments));
+    send(res, contents);
+  });
+};
+
+const readArgs = text => {
+  let args = {};
+  const splitKeyValue = pair => pair.split('=');
+  const assignKeyValueToArgs = ([key, value]) => args[key] = value;
+  text.split('&').map(splitKeyValue).forEach(assignKeyValueToArgs);
+  return args;
+};
+
 app.use(readbody);
 app.use(logRequest);
+app.post("/guestBook.html", guestBook);
 app.use(serveFile);
 app.use(notFound);
 
