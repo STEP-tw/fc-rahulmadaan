@@ -15,11 +15,16 @@
     height: 720px;
     margin-top:300px;
 }
-#head{
+.guestBookHeading{
+    text-align: center;
+    color: orange;
+}
+.heading{
     text-align: right; 
     margin-right: 50px; 
     color: orange;
 }
+
 #flowerImage{
      background-image: url("https://i.ibb.co/J5XKyPt/animated-flower-image-0021.gif");
      background-size: cover;

@@ -4,5 +4,9 @@ const blink = function () {
     setTimeout(() => {
         image.visibility = 'visible';
     }, 1000);
-}
+};
 
+const printGuestBook = function () {
+    // document.getElementById("").innerText = document.getElementById("").value;
+    
+}

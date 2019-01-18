@@ -20,7 +20,7 @@ const createApp = function () {
     }
     app.use = (handler) => allRoutes.push({ handler });
     app.get = (url, handler) => allRoutes.push({ method: "GET", url, handler });
-    app.push = (url, handler) => allRoutes.push({ method: "PUSH", url, handler });
+    app.post = (url, handler) => allRoutes.push({ method: "POST", url, handler });
 
     return app;
 }

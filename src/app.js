@@ -7,7 +7,15 @@ const send = (res, contents, statusCode = 200) => {
   res.write(contents);
   res.statusCode = statusCode;
   res.end();
+};
+
+const logRequest = function (req, res, next) {
+  console.log(req.url);
+  console.log(req.method);
+  console.log(req.body);
+  next();
 }
+
 const readbody = (req, res, jumpToNext) => {
   let contents = "";
   req.on("data", chunk => contents += chunk);
@@ -22,26 +30,32 @@ const notFound = (req, res, jumpToNext) => {
   jumpToNext();
 };
 
-const serveFile = (req, res) => {
-  try {
-    if (req.url === "/") {
-      readFile('./index.html', ENCODING, (err, data) => {
-        res.write(data);
-      });
+const handleRequest = function (url, encoding, res, next) {
+  readFile(url, encoding, (err, contents) => {
+    if (err) {
+      send(res, "404 Page Not Found", 404);
       return;
     }
-    readFile(`.${req.url}`, ENCODING, (err, data) => {
-      res.write(data);
-      res.statusCode = 200;
-      res.end();
-    });
+    send(res, contents.toString());
+  });
+};
+
+const serveFile = (req, res, next) => {
+  try {
+    if (req.url === "/") {
+      handleRequest("./index.html", ENCODING, res);
+      return;
+    }
+    handleRequest(`.${req.url}`, ENCODING, res);
   }
   catch (err) {
     console.log(err);
+    res.end();
   }
 };
 
 app.use(readbody);
+app.use(logRequest);
 app.use(serveFile);
 app.use(notFound);
 
