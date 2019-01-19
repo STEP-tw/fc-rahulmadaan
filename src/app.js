@@ -5,6 +5,9 @@ const app = createApp();
 const ENCODING = "utf8";
 const SPACE = " ";
 const NEWLINE = "\n";
+const COMMENTS_FILE = "./comments.json";
+const PAGE_NOT_FOUND = "404 Page Not Found";
+const INDEX_FILE = "./index.html"
 
 const send = (res, contents, statusCode = 200) => {
   res.write(contents);
@@ -25,7 +28,7 @@ const readbody = (req, res, jumpToNext) => {
   req.on("end", () => {
     req.body = contents;
     jumpToNext();
-  });
+  })
 };
 
 const notFound = (req, res, jumpToNext) => {
@@ -36,17 +39,17 @@ const notFound = (req, res, jumpToNext) => {
 const handleRequest = function (url, encoding, res, next) {
   readFile(url, encoding, (err, contents) => {
     if (err) {
-      send(res, "404 Page Not Found", 404);
+      send(res, PAGE_NOT_FOUND, 404);
       return;
     }
     send(res, contents.toString());
-  });
+  })
 };
 
 const serveFile = (req, res) => {
   try {
     if (req.url === "/") {
-      handleRequest("./index.html", ENCODING, res);
+      handleRequest(INDEX_FILE, ENCODING, res);
       return;
     }
     handleRequest(`.${req.url}`, ENCODING, res);
@@ -57,24 +60,29 @@ const serveFile = (req, res) => {
   }
 };
 
-const updateAndReadComments = function (file, data, res) {
+const updateAndReadComments = function (file, currentUserComment, res) {
   let contents = "";
-  appendFile(file, JSON.stringify(data) + NEWLINE, (err) => {
+  appendFile(file, JSON.stringify(currentUserComment) + NEWLINE, (err) => {
     if (err) throw err;
-    readFile(file, "utf8", (err, content) => {
+    readFile(file, ENCODING, (err, content) => {
       contents += getGuestBookData(content);
       send(res, contents);
-    });
-  });
+    })
+  })
 };
 
+const getCurrentCommentWithDate = function (req) {
+  let userComments = readArgs(req.body);
+  userComments.dateTime = new Date().toLocaleString();
+  return userComments;
+}
+
 const guestBook = function (req, res) {
-  readFile(`.${req.url}`, "utf8", (err, contents) => {
+  readFile(`.${req.url}`, ENCODING, (err, contents) => {
     res.write(contents);
-    let userComments = readArgs(req.body);
-    userComments.dateTime = new Date().toLocaleString();
-    updateAndReadComments("./comments.json", userComments, res);
-  });
+    let userComments = getCurrentCommentWithDate(req);
+    updateAndReadComments(COMMENTS_FILE, userComments, res);
+  })
 };
 
 const decodeElements = function (comment) {
@@ -94,18 +102,17 @@ const jsonToHTML = function (elements) {
   return output;
 };
 
-const getGuestBookData = function (comments) {
+const getGuestBookData = function (comments) {   // from comments.json file
   let list = comments.split("\n");
-  list.pop(); // unnecessary line
+  list.pop(); // removing unnecessary line
   let output = '';
   list.map((comment) => {
     decodedComments = decodeElements(JSON.parse(comment));
     output = output + jsonToHTML(decodedComments);
-    output = output + "<br>" + NEWLINE;
-  });
+    output = output + "<br>"; // br for new line in html
+  })
   return output;
 };
-
 
 const readArgs = text => {
   let args = {};
