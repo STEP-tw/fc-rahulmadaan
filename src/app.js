@@ -1,7 +1,10 @@
 const { readFile, appendFile } = require('fs');
 const createApp = require("../public/framework.js");
 const app = createApp();
+
 const ENCODING = "utf8";
+const SPACE = " ";
+const NEWLINE = "\n";
 
 const send = (res, contents, statusCode = 200) => {
   res.write(contents);
@@ -14,7 +17,7 @@ const logRequest = function (req, res, next) {
   console.log(req.method);
   console.log(req.body);
   next();
-}
+};
 
 const readbody = (req, res, jumpToNext) => {
   let contents = "";
@@ -40,7 +43,7 @@ const handleRequest = function (url, encoding, res, next) {
   });
 };
 
-const serveFile = (req, res, next) => {
+const serveFile = (req, res) => {
   try {
     if (req.url === "/") {
       handleRequest("./index.html", ENCODING, res);
@@ -54,14 +57,55 @@ const serveFile = (req, res, next) => {
   }
 };
 
-const guestBook = function (req, res) {
-  readFile(`.${req.url}`, "utf8", (err, contents) => {
-    let userComments = readArgs(req.body);
-    userComments.dateTime = new Date();
-    appendFile('./comments.json', JSON.stringify(userComments));
-    send(res, contents);
+const updateAndReadComments = function (file, data, res) {
+  let contents = "";
+  appendFile(file, JSON.stringify(data) + NEWLINE, (err) => {
+    if (err) throw err;
+    readFile(file, "utf8", (err, content) => {
+      contents += getGuestBookData(content);
+      send(res, contents);
+    });
   });
 };
+
+const guestBook = function (req, res) {
+  readFile(`.${req.url}`, "utf8", (err, contents) => {
+    res.write(contents);
+    let userComments = readArgs(req.body);
+    userComments.dateTime = new Date().toLocaleString();
+    updateAndReadComments("./comments.json", userComments, res);
+  });
+};
+
+const decodeElements = function (comment) {
+  comment.name = decodeURIComponent(comment.name).replace(/\+/g, SPACE);
+  comment.comment = decodeURIComponent(comment.comment).replace(/\+/g, SPACE);
+  return comment;
+};
+
+const jsonToHTML = function (elements) {
+  let output = "";
+  let delimiter = "";
+  let parameters = ["dateTime", "name", "comment"]
+  parameters.map(parameter => {
+    output = output + delimiter + elements[parameter];
+    delimiter = " : ";
+  })
+  return output;
+};
+
+const getGuestBookData = function (comments) {
+  let list = comments.split("\n");
+  list.pop(); // unnecessary line
+  let output = '';
+  list.map((comment) => {
+    decodedComments = decodeElements(JSON.parse(comment));
+    output = output + jsonToHTML(decodedComments);
+    output = output + "<br>" + NEWLINE;
+  });
+  return output;
+};
+
 
 const readArgs = text => {
   let args = {};

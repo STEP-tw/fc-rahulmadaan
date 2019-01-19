@@ -1,7 +1,6 @@
 const isMatching = function (route, req) {
     if (route.method && req.method != route.method) return false;
     if (route.url && req.url != route.url) return false;
-    if (route.url instanceof RegExp && route.url.test(req.url)) return true;
     return true;
 };
 
