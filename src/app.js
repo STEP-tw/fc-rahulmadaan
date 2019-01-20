@@ -105,6 +105,7 @@ const jsonToHTML = function (elements) {
 const getGuestBookData = function (comments) {   // from comments.json file
   let list = comments.split("\n");
   list.pop(); // removing unnecessary line
+  list.reverse();
   let output = '';
   list.map((comment) => {
     decodedComments = decodeElements(JSON.parse(comment));
