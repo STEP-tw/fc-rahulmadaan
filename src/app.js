@@ -62,7 +62,8 @@ const serveFile = (req, res) => {
 
 const updateAndReadComments = function (file, currentUserComment, res) {
   let contents = "";
-  appendFile(file, JSON.stringify(currentUserComment) + NEWLINE, (err) => {
+  let correctedComment = decodeElements(currentUserComment);
+  appendFile(file, JSON.stringify(correctedComment) + NEWLINE, (err) => {
     if (err) throw err;
     readFile(file, ENCODING, (err, content) => {
       contents += getGuestBookData(content);
@@ -83,6 +84,15 @@ const guestBook = function (req, res) {
     let userComments = getCurrentCommentWithDate(req);
     updateAndReadComments(COMMENTS_FILE, userComments, res);
   })
+};
+
+const commentedGuestBook = function (req, res) {
+  readFile("./guestBook.html", ENCODING, (err, content) => {
+    readFile(COMMENTS_FILE, ENCODING, (err, comments) => {
+      let htmlWithComments = content + getGuestBookData(comments);
+      send(res,htmlWithComments);
+    });
+  });
 };
 
 const decodeElements = function (comment) {
@@ -125,6 +135,7 @@ const readArgs = text => {
 
 app.use(readbody);
 app.use(logRequest);
+app.get("/guestBook.html", commentedGuestBook);
 app.post("/guestBook.html", guestBook);
 app.use(serveFile);
 app.use(notFound);
