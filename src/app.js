@@ -60,37 +60,25 @@ const serveFile = (req, res) => {
   }
 };
 
-const updateAndReadComments = function (file, currentUserComment, res) {
-  let contents = "";
-  let correctedComment = decodeElements(currentUserComment);
-  appendFile(file, JSON.stringify(correctedComment) + NEWLINE, (err) => {
-    if (err) throw err;
-    readFile(file, ENCODING, (err, content) => {
-      contents += getGuestBookData(content);
-      send(res, contents);
-    })
-  })
-};
-
 const getCurrentCommentWithDate = function (req) {
   let userComments = readArgs(req.body);
   userComments.dateTime = new Date().toLocaleString();
   return userComments;
 }
 
-const guestBook = function (req, res) {
-  readFile(`.${req.url}`, ENCODING, (err, contents) => {
-    res.write(contents);
-    let userComments = getCurrentCommentWithDate(req);
-    updateAndReadComments(COMMENTS_FILE, userComments, res);
-  })
+const updateGuestBook = function (req, res) {
+  let currentComment = getCurrentCommentWithDate(req);
+  appendFile(COMMENTS_FILE, JSON.stringify(currentComment) + NEWLINE, (err) => {
+    if (err) throw err;
+    renderGuestBook(req, res);
+  });
 };
 
-const commentedGuestBook = function (req, res) {
+const renderGuestBook = function (req, res) {
   readFile("./guestBook.html", ENCODING, (err, content) => {
     readFile(COMMENTS_FILE, ENCODING, (err, comments) => {
       let htmlWithComments = content + getGuestBookData(comments);
-      send(res,htmlWithComments);
+      send(res, htmlWithComments);
     });
   });
 };
@@ -135,8 +123,8 @@ const readArgs = text => {
 
 app.use(readbody);
 app.use(logRequest);
-app.get("/guestBook.html", commentedGuestBook);
-app.post("/guestBook.html", guestBook);
+app.get("/guestBook.html", renderGuestBook);
+app.post("/guestBook.html", updateGuestBook);
 app.use(serveFile);
 app.use(notFound);
 
