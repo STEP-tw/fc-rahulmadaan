@@ -5,9 +5,9 @@ const app = createApp();
 const ENCODING = "utf8";
 const SPACE = " ";
 const NEWLINE = "\n";
-const COMMENTS_FILE = "./comments.json";
+const COMMENTS_FILE = "./data/comments.json";
 const PAGE_NOT_FOUND = "404 Page Not Found";
-const INDEX_FILE = "./index.html"
+const INDEX_FILE = "index.html"
 
 const send = (res, contents, statusCode = 200) => {
   res.write(contents);
@@ -49,10 +49,10 @@ const handleRequest = function (url, encoding, res, next) {
 const serveFile = (req, res) => {
   try {
     if (req.url === "/") {
-      handleRequest(INDEX_FILE, ENCODING, res);
+      handleRequest(`./public/${INDEX_FILE}`, ENCODING, res);
       return;
     }
-    handleRequest(`.${req.url}`, ENCODING, res);
+    handleRequest(`./public/${req.url}`, ENCODING, res);
   }
   catch (err) {
     console.log(err);
@@ -62,7 +62,7 @@ const serveFile = (req, res) => {
 
 const getCurrentCommentWithDate = function (req) {
   let userComments = readArgs(req.body);
-  userComments.dateTime = new Date().toLocaleString();
+  userComments.dateTime = new Date();
   return userComments;
 }
 
@@ -75,7 +75,7 @@ const updateGuestBook = function (req, res) {
 };
 
 const renderGuestBook = function (req, res) {
-  readFile("./guestBook.html", ENCODING, (err, content) => {
+  readFile("./public/" + "guestBook.html", ENCODING, (err, content) => {
     readFile(COMMENTS_FILE, ENCODING, (err, comments) => {
       let htmlWithComments = content + getGuestBookData(comments);
       send(res, htmlWithComments);
@@ -96,7 +96,7 @@ const jsonToHTML = function (elements) {
   parameters.map(parameter => {
     output = output + delimiter + elements[parameter];
     delimiter = " : ";
-  })
+  });
   return output;
 };
 
