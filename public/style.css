@@ -15,11 +15,11 @@
     height: 720px;
     margin-top:300px;
 }
-.guestBookHeading{
+.heading{
     text-align: center;
     color: orange;
 }
-.heading{
+.indexHeading{
     text-align: right; 
     margin-right: 50px; 
     color: orange;

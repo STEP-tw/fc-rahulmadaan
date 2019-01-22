@@ -36,23 +36,23 @@ const notFound = (req, res, jumpToNext) => {
   jumpToNext();
 };
 
-const handleRequest = function (url, encoding, res, next) {
-  readFile(url, encoding, (err, contents) => {
+const handleRequest = function (url, res, next) {
+  readFile(url, (err, contents) => {
     if (err) {
       send(res, PAGE_NOT_FOUND, 404);
       return;
     }
-    send(res, contents.toString());
+    send(res, contents);
   })
 };
 
 const serveFile = (req, res) => {
   try {
     if (req.url === "/") {
-      handleRequest(`./public/${INDEX_FILE}`, ENCODING, res);
+      handleRequest(`./public/${INDEX_FILE}`, res);
       return;
     }
-    handleRequest(`./public/${req.url}`, ENCODING, res);
+    handleRequest(`./public/${req.url}`, res);
   }
   catch (err) {
     console.log(err);
